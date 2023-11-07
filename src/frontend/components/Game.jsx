@@ -132,7 +132,7 @@ function Game() {
     }); // TODO: Add to url config
     const [lobsters, setLobsters] = React.useState({}); // TODO: Change to reducer?
     const [gameState, setGameState] = React.useState(gameStates.Inactive);
-    const [winner, setWinner] = React.useState(null);
+    const [winners, setWinners] = React.useState([]);
 
     document.title = "Lobster game - " + channel;
 
@@ -141,13 +141,14 @@ function Game() {
         socket = io()
         socket.connect()
         socket.emit('init', { channel: channel, config: config })
+        // TODO: reset game state on lost connection
 
         // Listen for lobster updates
         socket.on('channelData', (data) => {
             if (data) {
                 setLobsters(data.lobsters)
                 setGameState(data.gameState)
-                setWinner(data.winner)
+                setWinners(data.winners)
             }
         })
 
@@ -173,13 +174,15 @@ function Game() {
                 break
             case (gameStates.Finished):
                 console.log("game finsished")
-                if (winner) {
-                    console.log(`the winner is ${winner}!`)
+                if (winners) {
+                    // console.log(`the winner is ${winners[0]}!`)
+                    console.log("the winners are:")
+                    console.log(winners)
                 }
                 break
 
         }
-    }, [gameState, winner])
+    }, [gameState, winners])
 
 
     // const addlobstercount = (user) => {
@@ -230,7 +233,7 @@ function Game() {
                 {/* Game Over screen */}
                 {gameState == gameStates.Finished ? (
                     <Container x={window.innerWidth / 2} y={window.innerHeight / 2}>
-                        <Text anchor={0.5} text={`${winner} wins!`} style={titleTextStyle} />
+                        <Text anchor={0.5} text={`${winners[0].user} wins!`} style={titleTextStyle} />
                     </Container>
                 ) : null}
                 {/* <Sprite anchor={0.5} x={300} y={200} height={100} width={100} image="/assets/lobster/png" /> */}

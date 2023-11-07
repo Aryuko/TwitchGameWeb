@@ -111,14 +111,14 @@ io.on('connection', (socket) => {
             chatClient.join(data.channel)
 
             if (channelData[data.channel]) {
-                console.log("data exists already, syncing")
+                // console.log("data exists already, syncing")
                 syncData(data.channel, socket)
             } else {
                 channelData[data.channel] = {
                     "clients": [],
                     "gameState": gameStates.Inactive,
                     "goal": data.config.goal,
-                    "winner": null,
+                    "winners": [],
                     "lobsters": {}
                 }
             }
@@ -136,7 +136,7 @@ function syncData(channel, socket = null) {
     if (socket) {
         socket.emit("channelData", channelData[channel])
     } else {
-        console.log(`syncing channel '${channel}' with ${channelClients[channel].length} clients`)
+        // console.log(`syncing channel '${channel}' with ${channelClients[channel].length} clients`)
         for (let client of channelClients[channel]) {
             client.emit("channelData", channelData[channel])
         }
@@ -150,11 +150,22 @@ function finishRace(channel) {
     }
     if (channelData[channel].gameState != gameStates.Finished) {
         channelData[channel].gameState = gameStates.Finished
+
+        let winners = Object.entries(channelData[channel].lobsters).sort((a, b) => {
+            return b[1].count - a[1].count
+        }).splice(0, 3).map(item => {
+            return {
+                "user": item[0],
+                ...item[1]
+            }
+        })
+
+        channelData[channel].winners = winners
+
         syncData(channel)
-        console.log("game over! the winner is:", channelData[channel].winner)
 
         setTimeout(() => {
-            console.log("stopping finish screen")
+            // console.log("stopping finish screen")
             stopRace(channel)
         }, config.server.RESET_DELAY)
     }
@@ -173,7 +184,7 @@ function startRace(channel) {
     if (!channelDataIntervals[channel] && channelData[channel].gameState == gameStates.Inactive) {
         channelData[channel].gameState = gameStates.Active
         syncData(channel)
-        console.log("new game started")
+        // console.log("new game started")
 
         channelDataIntervals[channel] = setInterval(() => {
             syncData(channel)
@@ -188,11 +199,9 @@ function addLobster(channel, user, color = "dd2e44") {
             color: color,
             points: 0
         }
-        if (channelData[channel].lobsters[user].count++ >= channelData[channel].goal) {
+        if (++channelData[channel].lobsters[user].count >= channelData[channel].goal) {
             // game over
-            channelData[channel].winner = user
             finishRace(channel)
-            console.log("game over! the winner is:", user)
         }
     } else {
         console.log(`No '${channel}' channel saved`)
@@ -202,7 +211,7 @@ function addLobster(channel, user, color = "dd2e44") {
 function clearLobsters(channel) {
     if (channelData[channel]) {
         channelData[channel].lobsters = {};
-        channelData[channel].winner = null;
+        channelData[channel].winners = [];
         channelData[channel].gameState = gameStates.Inactive;
     }
 }
@@ -219,7 +228,7 @@ function startMockData(channel, count) {
             if (i++ == count) {
                 // stopRace(channel)
                 return clearInterval(interval)
-            } else if (channelData[channel].winner) {
+            } else if (channelData[channel].winners.length > 0) {
                 return clearInterval(interval)
             } else {
                 if (Math.random() < 0.5) { addLobster(channel, "aryu", Math.random() * 0xFFFFFF) }
@@ -240,7 +249,14 @@ function startMockData(channel, count) {
     "risshella": {
         "clients": []
         "gameState": gameState.InProgress,
-        "winner": null,
+        "winners": [
+            {
+                user: aryu,
+                count: 10,
+                color: "C7A3FF"
+                points: 0
+            }
+        ],
         "goal": 100,
         "lobsters": {
             "aryu": {
