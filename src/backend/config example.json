@@ -1,0 +1,15 @@
+{
+    "twitch": {
+        "CLIENT_ID": "replace",
+        "CLIENT_SECRET": "all",
+        "CLIENT_USER": "of",
+        "CLIENT_USERNAME": "these",
+        "ACCESS_TOKEN": "and",
+        "REFRESH_TOKEN": "this"
+    },
+    "server": {
+        "PORT": 3000,
+        "SYNC_DELAY": 500,
+        "RESET_DELAY": 5000
+    }
+}
