@@ -136,12 +136,17 @@ function Game() {
 
     document.title = "Lobster game - " + channel;
 
+    const resetData = () => {
+        setLobsters({})
+        setGameState(gameStates.Inactive)
+        setWinners([])
+    }
+
     React.useEffect(() => {
         // Open persistent connection to server
         socket = io()
         socket.connect()
         socket.emit('init', { channel: channel, config: config })
-        // TODO: reset game state on lost connection
 
         // Listen for lobster updates
         socket.on('channelData', (data) => {
@@ -152,19 +157,22 @@ function Game() {
             }
         })
 
+        socket.on('disconnect', (reason) => {
+            console.log('disconnected', reason)
+            resetData()
+        })
+
+        socket.io.on('reconnect', () => {
+            console.log('reconnected')
+            socket.emit('init', { channel: channel, config: config })
+        })
+
         return () => {
             socket.disconnect();
         }
     }, [])
 
-    // React.useEffect(() => {
-    //     console.log("lobsters updated", lobsters)
-
-    //     // TODO: check for changes, this always triggers
-    // }, [lobsters])
-
     React.useEffect(() => {
-        // TODO: finish implementing
         switch (gameState) {
             case (gameStates.Active):
                 console.log("game started!")
@@ -183,23 +191,6 @@ function Game() {
 
         }
     }, [gameState, winners])
-
-
-    // const addlobstercount = (user) => {
-    //     const i = lobsters.find(e => e.user == user);
-    //     if (i) {
-    //         i.count++;
-    //         console.log("existing user", lobsters)
-    //     } else {
-    //         setLobsters([...lobsters, {
-    //             user: user,
-    //             count: 1,
-    //             points: 0
-    //         }])
-    //         console.log("new user", lobsters)
-    //     }
-    //     //forceUpdate();
-    // }
 
     const requestMockData = () => {
         if (gameState != gameStates.Active) {

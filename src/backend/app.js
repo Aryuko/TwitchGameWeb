@@ -1,6 +1,6 @@
 /** 
- * Project:     planning-poker TODO: Fix
- * Repository:  https://github.com/Aryuko/planning-poker/
+ * Project:     lobster-race
+ * Repository:  /
  * Author:      Aryuko
  * Version:     0.0.1
 */
@@ -97,7 +97,6 @@ io.on('connection', (socket) => {
     })
 
     // TODO: leave channel if socket inactive
-    // TODO: add socket id to list
     socket.on('init', (data) => {
         if (data && data.channel) {
             console.log('init id:', socket.id)
