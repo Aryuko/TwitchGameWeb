@@ -49,7 +49,7 @@ function WinnerLobster(props) {
     });
     return (
         <Container anchor={0.5} x={props.x} y={props.y} {...motion}>
-            <Sprite image="/assets/lobsterwhite.png" filters={[outline]} anchor={0.5} height={props.size} width={props.size} tint={props.winner.color} />
+            <Sprite image="/assets/lobsterbig.png" filters={[outline]} anchor={0.5} height={props.size} width={props.size} tint={props.winner.color} />
             <Text anchor={0.5} y={textOffset} filters={[outline]} text={props.winner.user} style={textStyle} />
         </Container>
     )
@@ -65,7 +65,6 @@ function WinnerLobster(props) {
 function WinnerScreen(props) {
     return (
         <Container x={window.innerWidth / 2} y={window.innerHeight / 2}>
-            {/* <Sprite image="/assets/lobsterwhite.png" filters={[outline]} anchor={0.5} x={25} y={0} height={defaultSize} width={defaultSize} {...motion} tint={props.color} /> */}
             <Sprite image="/assets/podium.png" anchor={0.5} filters={[outline]} height={podiumSize} width={podiumSize} y={200} />
             <WinnerLobster index={1} x={0} y={-160} size={lobsterSize} winner={props.winners[0]} textStyle={props.textStyle} />
             <WinnerLobster index={2} x={-265} y={-30} size={lobsterSize} winner={props.winners[1]} textStyle={props.textStyle} />

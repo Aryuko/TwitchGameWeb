@@ -58,7 +58,7 @@ function PlayerLobster(props) {
     return (
         <Container x={x} y={y} key={props.index} anchor={[1, 0.5]}>
             {/* text={props.user + "\n" + props.count} */}
-            <Sprite image="/assets/lobsterwhite.png" filters={[outline]} anchor={0.5} x={25} y={0} height={defaultSize} width={defaultSize} {...motion} tint={props.color} />
+            <Sprite image="/assets/lobstersmall.png" filters={[outline]} anchor={0.5} x={25} y={0} height={defaultSize} width={defaultSize} {...motion} tint={props.color} />
             <Text filters={[outline]} text={props.user} x={-25} y={0} anchor={0.5} style={textStyle} />
         </Container>
     )

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
-import { Stage, Container, Text } from '@pixi/react';
-import { TEXT_GRADIENT, TextStyle } from 'pixi.js';
+import { Stage, Container, Text, TilingSprite } from '@pixi/react';
+import { TEXT_GRADIENT, TextStyle, Texture } from 'pixi.js';
 import PlayerLobster from './PlayerLobster.jsx';
 import WinnerScreen from './WinnerScreen.jsx';
 import { OutlineFilter } from '@pixi/filter-outline';
@@ -9,10 +9,11 @@ import confetti from 'canvas-confetti';
 
 var socket;
 
+/* ------- PARTICLES ------- */
+
 // Borrowed from https://www.kirilv.com/canvas-confetti/ 
-const confettiDuration = 5 * 1000
 const confettiDelay = 500
-const confettiDefaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
+const confettiDefaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, scalar: 2 }
 
 // var confettiEnd = null
 var confettiInterval = null
@@ -23,20 +24,12 @@ function randomInRange(min, max) {
 
 const startConfetti = () => {
     if (!confettiInterval) {
-        // confettiEnd = Date.now() + confettiDuration
-
         confettiInterval = setInterval(function () {
-            // var timeLeft = confettiEnd - Date.now()
-
-            // if (timeLeft <= 0) {
-            //     return stopConfetti()
-            // }
-
             // var particleCount = 50 * (timeLeft / confettiDuration)
             var particleCount = 50
+
             // since particles fall down, start a bit higher than random
             confetti({ ...confettiDefaults, particleCount, origin: { x: randomInRange(0.1, 0.9), y: randomInRange(0.1, 0.9) } })
-            // confetti({ ...confettiDefaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
         }, confettiDelay)
     }
 }
@@ -46,7 +39,7 @@ const stopConfetti = () => {
     confettiInterval = null
 }
 
-/* ----------------- */
+/* ------- SIDE COMPONENTS ------- */
 
 // TODO: Replace temporary config
 var screenMargin = 100;
@@ -94,8 +87,24 @@ const FinishedText = (props) => {
         </Container>
     )
 }
+/**
+ * 
+ * @param {object} props 
+ * @param {number} props.height 
+ * @param {number} props.x 
+ * @param {number} props.y 
+ * @returns 
+ */
+const FinishLine = (props) => {
+    const texture = Texture.from("/assets/finishlinewhite.png")
+    const width = 32
+    const tileScale = width / 128
+    return (
+        <TilingSprite texture={texture} anchor={[0.5, 0]} width={width} tileScale={tileScale} height={props.height} x={props.x} y={props.y} />
+    )
+}
 
-/* -------------------------------------------------- */
+/* ------- MAIN COMPONENT ------- */
 
 function Game() {
     const { channel } = useParams();
@@ -219,6 +228,7 @@ function Game() {
             <Stage width={window.innerWidth} height={window.innerHeight} interactive={'auto'} options={{ resizeTo: window, backgroundAlpha: 0 }} >
                 {/* Decorations */}
                 {gameState != gameStates.Inactive ? <TitleText gameState={gameState} /> : null}
+                {gameState == gameStates.Active ? <FinishLine height={window.innerHeight} x={gameWidth + screenMargin} y={0} /> : null}
                 {/* {gameState == gameStates.Finished ? <FinishedText /> : null} */}
                 {/* Players */}
                 {gameState == gameStates.Active ? (

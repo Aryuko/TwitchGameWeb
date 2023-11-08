@@ -77,6 +77,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 var clientCount = 0
 var channelData = {}
 var channelDataIntervals = {}
+var channelResetTimers = {}
 var channelClients = {}
 const gameStates = {
     Inactive: "inactive",
@@ -163,7 +164,10 @@ function finishRace(channel) {
 
         syncData(channel)
 
-        setTimeout(() => {
+        if (channelResetTimers[channel]) {
+            clearTimeout(channelResetTimers[channel])
+        }
+        channelResetTimers[channel] = setTimeout(() => {
             // console.log("stopping finish screen")
             stopRace(channel)
         }, config.server.RESET_DELAY)
@@ -175,12 +179,21 @@ function stopRace(channel) {
         clearInterval(channelDataIntervals[channel])
         channelDataIntervals[channel] = null
     }
+    if (channelResetTimers[channel]) {
+        clearTimeout(channelResetTimers[channel])
+        channelResetTimers[channel] = null
+    }
+
     clearLobsters(channel)
     syncData(channel)
 }
 
 function startRace(channel) {
     if (!channelDataIntervals[channel] && channelData[channel].gameState != gameStates.Active) {
+        if (channelResetTimers[channel]) {
+            clearTimeout(channelResetTimers[channel])
+            channelResetTimers[channel] = null
+        }
         channelData[channel].gameState = gameStates.Active
         syncData(channel)
         // console.log("new game started")
