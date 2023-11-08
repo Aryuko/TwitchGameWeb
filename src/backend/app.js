@@ -180,7 +180,7 @@ function stopRace(channel) {
 }
 
 function startRace(channel) {
-    if (!channelDataIntervals[channel] && channelData[channel].gameState == gameStates.Inactive) {
+    if (!channelDataIntervals[channel] && channelData[channel].gameState != gameStates.Active) {
         channelData[channel].gameState = gameStates.Active
         syncData(channel)
         // console.log("new game started")
@@ -216,7 +216,7 @@ function clearLobsters(channel) {
 }
 
 let mockActive = false;
-function startMockData(channel, count) {
+function startMockData(channel, userCount = false) {
     if (!mockActive) {
         mockActive = true;
         clearLobsters(channel);
@@ -224,11 +224,12 @@ function startMockData(channel, count) {
 
         let i = 0;
         const interval = setInterval(() => {
-            if (i++ == count) {
-                // stopRace(channel)
+            if (channelData[channel].winners.length > 0) {
                 return clearInterval(interval)
-            } else if (channelData[channel].winners.length > 0) {
-                return clearInterval(interval)
+            } else if (userCount) {
+                for (let i = 0; i < userCount; i++) {
+                    if (Math.random() < 0.5) { addLobster(channel, `testuser-${i}`, Math.random() * 0xFFFFFF) }
+                }
             } else {
                 if (Math.random() < 0.5) { addLobster(channel, "aryu", Math.random() * 0xFFFFFF) }
                 if (Math.random() < 0.5) { addLobster(channel, "risshella", Math.random() * 0xFFFFFF) }
@@ -250,9 +251,9 @@ function startMockData(channel, count) {
         "gameState": gameState.InProgress,
         "winners": [
             {
-                user: aryu,
+                user: "aryu",
                 count: 10,
-                color: "C7A3FF"
+                color: "C7A3FF",
                 points: 0
             }
         ],

@@ -3,7 +3,10 @@ import { TextStyle } from 'pixi.js';
 import { Container, Sprite, Text, useTick } from '@pixi/react';
 import { OutlineFilter } from '@pixi/filter-outline'
 
-const reducer = (_, { data }) => data;
+const reducer = (_, { data }) => data
+const defaultSize = 50
+const outline = new OutlineFilter(1, "#FFFFFF", 0.1, 1)
+
 /**
  * 
  * @param {object} props
@@ -14,7 +17,8 @@ const reducer = (_, { data }) => data;
  * @param {number} props.count 
  * @param {number} props.points 
  * @param {number} props.goal 
- * @param {number} props.screenMargin 
+ * @param {number} props.gameWidth 
+ * @param {number} props.gameHeight 
  * @returns 
  */
 function PlayerLobster(props) {
@@ -36,8 +40,8 @@ function PlayerLobster(props) {
                 anchor: 0.5,
                 x: 25,
                 y: 0,
-                height: 50,
-                width: 50,
+                // height: defaultSize,
+                // width: defaultSize,
             },
         });
     });
@@ -46,19 +50,16 @@ function PlayerLobster(props) {
         fill: props.color,
         fontSize: 20,
         align: "center",
-        // trim: true,
-        // stroke: 'black',
-        // strokeThickness: 2
     })
-    const outline = new OutlineFilter(1, "#FFFFFF", 0.1, 0.5)
 
-    let y = props.index / props.lobstercount * (window.innerHeight - props.screenMargin * 2)
-    let x = props.count / props.goal * (window.innerWidth - props.screenMargin * 2)
+    let x = props.count / props.goal * (props.gameWidth)
+    let y = props.index / props.lobstercount * (props.gameHeight)
 
     return (
         <Container x={x} y={y} key={props.index} anchor={0}>
-            <Text filters={[outline]} text={props.user + "\n" + props.count} x={-25} y={0} anchor={0.5} style={textStyle} />
-            <Sprite image="/assets/lobsterwhite.png" filters={[outline]} anchor={0.5} x={25} y={0} height={50} width={50} {...motion} tint={props.color} />
+            {/* text={props.user + "\n" + props.count} */}
+            <Sprite image="/assets/lobsterwhite.png" filters={[outline]} anchor={0.5} x={25} y={0} height={defaultSize} width={defaultSize} {...motion} tint={props.color} />
+            <Text filters={[outline]} text={props.user} x={-25} y={0} anchor={0.5} style={textStyle} />
         </Container>
     )
 }

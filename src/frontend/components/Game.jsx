@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Stage, Container, Text } from '@pixi/react';
 import { TEXT_GRADIENT, TextStyle } from 'pixi.js';
 import PlayerLobster from './PlayerLobster.jsx';
+import WinnerScreen from './WinnerScreen.jsx';
 
 var socket;
 
@@ -19,15 +20,27 @@ const titleTextStyle = new TextStyle({
     fillGradientType: TEXT_GRADIENT.LINEAR_VERTICAL,
     fontSize: 50,
     fontWeight: '400',
-    stroke: 'white',
+    stroke: 'white', // TODO: update to use outlinefilter
     strokeThickness: 3
 })
-const TitleText = () => {
-
+const TitleText = (props) => {
+    let text = ""
+    if (props.gameState == gameStates.Active) {
+        text = "Lobster Race"
+    } else if (props.gameState == gameStates.Finished) {
+        text = "🎉 We have our winners! 🎉"
+    }
     return (
-        <Container x={window.innerWidth / 2} y={100}>
+        <Container x={window.innerWidth / 2} y={screenMargin}>
             {/* <LobsterTestSprite /> */}
-            <Text text="Lobster Race" align="center" anchor={0.5} style={titleTextStyle} />
+            <Text text={text} align="center" anchor={0.5} style={titleTextStyle} />
+        </Container>
+    )
+}
+const FinishedText = (props) => {
+    return (
+        <Container x={window.innerWidth / 2} y={window.innerHeight - screenMargin}>
+            <Text text={"!startrace to go again!"} align="center" anchor={0.5} style={titleTextStyle} />
         </Container>
     )
 }
@@ -99,13 +112,40 @@ function Game() {
                 break
 
         }
-    }, [gameState, winners])
+    }, [gameState])
 
     const requestMockData = () => {
         if (gameState != gameStates.Active) {
             socket.emit('requestMockData');
         }
     }
+
+    const mockWinners = () => {
+        setWinners([
+            {
+                user: "aryu",
+                count: 10,
+                color: "C7A3FF",
+                points: 0
+            },
+            {
+                user: "kokos",
+                count: 9,
+                color: "dd2e44",
+                points: 0
+            },
+            {
+                user: "shella",
+                count: 8,
+                color: "7783d9",
+                points: 0
+            }
+        ])
+        setGameState(gameStates.Finished)
+    }
+
+    let gameWidth = window.innerWidth - screenMargin * 2
+    let gameHeight = window.innerHeight - screenMargin * 2
 
     return (
         <div className="gameContainer">
@@ -115,26 +155,27 @@ function Game() {
                     // <LobsterPlayer key={lobster.user} user={lobster.user} count={lobster.count} points={lobster.points} />
                 ))}
             </div> */}
-            <button className='mockButton' onClick={requestMockData}>{gameState == gameStates.Active ? "race active!" : "mock"}</button>
+            <div className="mockButton">
+                <button onClick={requestMockData}>{gameState == gameStates.Active ? "race active!" : "mock game"}</button>
+                <button onClick={mockWinners}>mock winners</button>
+            </div>
             <img src="/assets/crabrave.gif" className='topLeft' style={{ display: gameState == gameStates.Active ? "block" : "none" }} />
             <img src="/assets/crabrave.gif" className='topRight' style={{ display: gameState == gameStates.Active ? "block" : "none" }} />
             <img src="/assets/crabrave.gif" className='bottomLeft' style={{ display: gameState == gameStates.Active ? "block" : "none" }} />
             <img src="/assets/crabrave.gif" className='bottomRight' style={{ display: gameState == gameStates.Active ? "block" : "none" }} />
             <Stage width={window.innerWidth} height={window.innerHeight} interactive={'auto'} options={{ resizeTo: window, backgroundAlpha: 0 }} >
                 {/* Decorations */}
-                {gameState != gameStates.Inactive ? <TitleText /> : null}
+                {gameState != gameStates.Inactive ? <TitleText gameState={gameState} /> : null}
+                {gameState == gameStates.Finished ? <FinishedText /> : null}
                 {/* Players */}
-                {/* <Container width={window.innerWidth - margin * 2} height={window.innerHeight - margin * 2} anchor={0.5} x={window.innerWidth / 2} y={window.innerHeight / 2}> */}
                 {gameState == gameStates.Active ? (
-                    <Container width={window.innerWidth - screenMargin * 2} height={window.innerHeight - screenMargin * 2} x={screenMargin} y={screenMargin}>
-                        {Object.entries(lobsters).map(([user, lob], index) => <PlayerLobster key={index} screenMargin={screenMargin} goal={config.goal} color={lob.color} lobstercount={Object.keys(lobsters).length} user={user} index={index} count={lob.count} points={lob.points} />)}
+                    <Container width={gameWidth} height={gameHeight} x={screenMargin} y={screenMargin}>
+                        {Object.entries(lobsters).map(([user, lob], index) => <PlayerLobster key={index} gameWidth={gameWidth} gameHeight={gameHeight} goal={config.goal} color={lob.color} lobstercount={Object.keys(lobsters).length} user={user} index={index} count={lob.count} points={lob.points} />)}
                     </Container>
                 ) : null}
                 {/* Game Over screen */}
                 {gameState == gameStates.Finished ? (
-                    <Container x={window.innerWidth / 2} y={window.innerHeight / 2}>
-                        <Text anchor={0.5} text={`${winners[0].user} wins!`} style={titleTextStyle} />
-                    </Container>
+                    <WinnerScreen textStyle={titleTextStyle} winners={winners} />
                 ) : null}
                 {/* <Sprite anchor={0.5} x={300} y={200} height={100} width={100} image="/assets/lobster/png" /> */}
             </Stage>
