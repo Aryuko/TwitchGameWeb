@@ -167,7 +167,7 @@ function Game() {
             <Stage width={window.innerWidth} height={window.innerHeight} interactive={'auto'} options={{ resizeTo: window, backgroundAlpha: 0 }} >
                 {/* Decorations */}
                 {gameState != gameStates.Inactive ? <TitleText gameState={gameState} /> : null}
-                {gameState == gameStates.Finished ? <FinishedText /> : null}
+                {/* {gameState == gameStates.Finished ? <FinishedText /> : null} */}
                 {/* Players */}
                 {gameState == gameStates.Active ? (
                     <Container width={gameWidth} height={gameHeight} x={screenMargin} y={screenMargin}>
