@@ -13,7 +13,7 @@ var socket;
 
 // Borrowed from https://www.kirilv.com/canvas-confetti/ 
 const confettiDelay = 500
-const confettiDefaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, scalar: 2 }
+const confettiDefaults = { startVelocity: 30, particleCount: 50, spread: 360, ticks: 60, zIndex: 0, scalar: 2 }
 
 // var confettiEnd = null
 var confettiInterval = null
@@ -26,10 +26,9 @@ const startConfetti = () => {
     if (!confettiInterval) {
         confettiInterval = setInterval(function () {
             // var particleCount = 50 * (timeLeft / confettiDuration)
-            var particleCount = 50
 
             // since particles fall down, start a bit higher than random
-            confetti({ ...confettiDefaults, particleCount, origin: { x: randomInRange(0.1, 0.9), y: randomInRange(0.1, 0.9) } })
+            confetti({ ...confettiDefaults, origin: { x: randomInRange(0.1, 0.9), y: randomInRange(0.1, 0.9) } })
         }, confettiDelay)
     }
 }
@@ -92,7 +91,6 @@ const FinishedText = (props) => {
  * @param {object} props 
  * @param {number} props.height 
  * @param {number} props.x 
- * @param {number} props.y 
  * @returns 
  */
 const FinishLine = (props) => {
@@ -100,7 +98,22 @@ const FinishLine = (props) => {
     const width = 32
     const tileScale = width / 128
     return (
-        <TilingSprite texture={texture} anchor={[0.5, 0]} width={width} tileScale={tileScale} height={props.height} x={props.x} y={props.y} />
+        <TilingSprite texture={texture} anchor={[0.5, 0]} width={width} tileScale={tileScale} height={props.height} x={props.x} y={0} />
+    )
+}
+/**
+ * 
+ * @param {object} props 
+ * @param {number} props.height 
+ * @param {number} props.x 
+ * @returns 
+ */
+const StartLine = (props) => {
+    const texture = Texture.from("/assets/white.png")
+    const width = 8
+    const tileScale = 1
+    return (
+        <TilingSprite texture={texture} anchor={[0.5, 0]} width={width} tileScale={tileScale} height={props.height} x={props.x} y={0} />
     )
 }
 
@@ -168,8 +181,8 @@ function Game() {
                 if (winners) {
                     startConfetti()
                     // console.log(`the winner is ${winners[0]}!`)
-                    console.log("the winners are:")
-                    console.log(winners)
+                    // console.log("the winners are:")
+                    // console.log(winners)
                 }
                 break
 
@@ -228,7 +241,8 @@ function Game() {
             <Stage width={window.innerWidth} height={window.innerHeight} interactive={'auto'} options={{ resizeTo: window, backgroundAlpha: 0 }} >
                 {/* Decorations */}
                 {gameState != gameStates.Inactive ? <TitleText gameState={gameState} /> : null}
-                {gameState == gameStates.Active ? <FinishLine height={window.innerHeight} x={gameWidth + screenMargin} y={0} /> : null}
+                {gameState == gameStates.Active ? <FinishLine height={window.innerHeight} x={gameWidth + screenMargin} /> : null}
+                {gameState == gameStates.Active ? <StartLine height={window.innerHeight} x={screenMargin} /> : null}
                 {/* {gameState == gameStates.Finished ? <FinishedText /> : null} */}
                 {/* Players */}
                 {gameState == gameStates.Active ? (

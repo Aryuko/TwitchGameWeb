@@ -5,7 +5,7 @@ import { OutlineFilter } from '@pixi/filter-outline';
 
 const podiumSize = 800 //TODO: add scaling
 const lobsterSize = 200
-const textOffset = -175
+const textOffset = -150
 const outline = new OutlineFilter(2, "#FFFFFF", 0.1, 1)
 const reducer = (_, { data }) => data
 
@@ -43,7 +43,8 @@ function WinnerLobster(props) {
                 // rotation: Math.PI / 2 + (Math.sin(i * 4) * Math.PI / 20),
                 // anchor: 0.5,
                 // x: 0,
-                y: props.y - Math.sin(props.index + i * 2) * 25 - 25, // animate sin shit
+                y: props.y - Math.max(0, Math.sin(props.index + i * 2) * 50),
+                // y: props.y - Math.abs(Math.sin(props.index + i * 2) * 50), // constant jumps 
             },
         });
     });
