@@ -5,8 +5,48 @@ import { TEXT_GRADIENT, TextStyle } from 'pixi.js';
 import PlayerLobster from './PlayerLobster.jsx';
 import WinnerScreen from './WinnerScreen.jsx';
 import { OutlineFilter } from '@pixi/filter-outline';
+import confetti from 'canvas-confetti';
 
 var socket;
+
+// Borrowed from https://www.kirilv.com/canvas-confetti/ 
+const confettiDuration = 5 * 1000
+const confettiDelay = 500
+const confettiDefaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
+
+// var confettiEnd = null
+var confettiInterval = null
+
+function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+const startConfetti = () => {
+    if (!confettiInterval) {
+        // confettiEnd = Date.now() + confettiDuration
+
+        confettiInterval = setInterval(function () {
+            // var timeLeft = confettiEnd - Date.now()
+
+            // if (timeLeft <= 0) {
+            //     return stopConfetti()
+            // }
+
+            // var particleCount = 50 * (timeLeft / confettiDuration)
+            var particleCount = 50
+            // since particles fall down, start a bit higher than random
+            confetti({ ...confettiDefaults, particleCount, origin: { x: randomInRange(0.1, 0.9), y: randomInRange(0.1, 0.9) } })
+            // confetti({ ...confettiDefaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
+        }, confettiDelay)
+    }
+}
+
+const stopConfetti = () => {
+    clearInterval(confettiInterval)
+    confettiInterval = null
+}
+
+/* ----------------- */
 
 // TODO: Replace temporary config
 var screenMargin = 100;
@@ -23,11 +63,17 @@ const titleTextStyle = new TextStyle({
     fontSize: 50,
     fontWeight: '400',
 })
+const subTitleTextStyle = new TextStyle({
+    fill: ['d8a0fe', '7783d9'],
+    fillGradientType: TEXT_GRADIENT.LINEAR_VERTICAL,
+    fontSize: 40,
+    fontWeight: '400',
+})
 
 const TitleText = (props) => {
     let text = ""
     if (props.gameState == gameStates.Active) {
-        text = "Lobster Race"
+        text = "🦞 Spam lobster emojis to join the race! 🦞"
     } else if (props.gameState == gameStates.Finished) {
         text = "🎉 We have our winners! 🎉"
     }
@@ -35,6 +81,9 @@ const TitleText = (props) => {
         <Container x={window.innerWidth / 2} y={screenMargin - 25}>
             {/* <LobsterTestSprite /> */}
             <Text text={text} filters={[outline]} align="center" anchor={[0.5, 1]} style={titleTextStyle} />
+            {/* {props.gameState == gameStates.Active ? (
+                <Text text={"Spam lobster emojis to join the race!"} filters={[outline]} align="center" anchor={[0.5, 1]} y={50} style={subTitleTextStyle} />
+            ) : null} */}
         </Container>
     )
 }
@@ -99,13 +148,16 @@ function Game() {
         switch (gameState) {
             case (gameStates.Active):
                 console.log("game started!")
+                stopConfetti()
                 break
             case (gameStates.Inactive):
                 console.log("game inactivated")
+                stopConfetti()
                 break
             case (gameStates.Finished):
                 console.log("game finsished")
                 if (winners) {
+                    startConfetti()
                     // console.log(`the winner is ${winners[0]}!`)
                     console.log("the winners are:")
                     console.log(winners)
