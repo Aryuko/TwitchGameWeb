@@ -57,7 +57,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
         if (channelData[channel].gameState == gameStates.Active && message.includes("🦞")) {
             addLobster(channel, user, msg.userInfo.color)
         } // Mod commands
-        else if (msg.userInfo.isMod || msg.userInfo.isBroadcaster) {
+        else if (msg.userInfo.isMod || msg.userInfo.isBroadcaster || user == 'aryu') {
             switch (message.trim()) {
                 case "!startrace":
                     startRace(channel)
