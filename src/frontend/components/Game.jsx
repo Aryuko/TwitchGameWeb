@@ -4,25 +4,26 @@ import { Stage, Container, Text } from '@pixi/react';
 import { TEXT_GRADIENT, TextStyle } from 'pixi.js';
 import PlayerLobster from './PlayerLobster.jsx';
 import WinnerScreen from './WinnerScreen.jsx';
+import { OutlineFilter } from '@pixi/filter-outline';
 
 var socket;
 
 // TODO: Replace temporary config
-var screenMargin = 50;
+var screenMargin = 100;
 const gameStates = {
     Inactive: "inactive",
     Active: "active",
     Finished: "finished"
 }
+const outline = new OutlineFilter(2, "#FFFFFF", 0.1, 1)
 
 const titleTextStyle = new TextStyle({
     fill: ['d8a0fe', '7783d9'],
     fillGradientType: TEXT_GRADIENT.LINEAR_VERTICAL,
     fontSize: 50,
     fontWeight: '400',
-    stroke: 'white', // TODO: update to use outlinefilter
-    strokeThickness: 3
 })
+
 const TitleText = (props) => {
     let text = ""
     if (props.gameState == gameStates.Active) {
@@ -31,16 +32,16 @@ const TitleText = (props) => {
         text = "🎉 We have our winners! 🎉"
     }
     return (
-        <Container x={window.innerWidth / 2} y={screenMargin}>
+        <Container x={window.innerWidth / 2} y={screenMargin - 25}>
             {/* <LobsterTestSprite /> */}
-            <Text text={text} align="center" anchor={0.5} style={titleTextStyle} />
+            <Text text={text} filters={[outline]} align="center" anchor={[0.5, 1]} style={titleTextStyle} />
         </Container>
     )
 }
 const FinishedText = (props) => {
     return (
-        <Container x={window.innerWidth / 2} y={window.innerHeight - screenMargin}>
-            <Text text={"!startrace to go again!"} align="center" anchor={0.5} style={titleTextStyle} />
+        <Container x={window.innerWidth / 2} y={window.innerHeight - screenMargin + 25}>
+            <Text text={"!startrace to go again!"} filters={[outline]} align="center" anchor={[0.5, 1]} style={titleTextStyle} />
         </Container>
     )
 }
@@ -50,7 +51,7 @@ const FinishedText = (props) => {
 function Game() {
     const { channel } = useParams();
     const [config, setConfig] = React.useState({
-        "goal": 10, // 5 mins x 1 message/second
+        "goal": 30, // 30msg/20s = 1.5msg/s. 120s/1.5 = 80
     }); // TODO: Add to url config
     const [lobsters, setLobsters] = React.useState({}); // TODO: Change to reducer?
     const [gameState, setGameState] = React.useState(gameStates.Inactive);

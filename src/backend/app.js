@@ -224,7 +224,7 @@ function startMockData(channel, userCount = false) {
 
         let i = 0;
         const interval = setInterval(() => {
-            if (channelData[channel].winners.length > 0) {
+            if (channelData[channel].gameState == gameStates.Finished) {
                 return clearInterval(interval)
             } else if (userCount) {
                 for (let i = 0; i < userCount; i++) {
