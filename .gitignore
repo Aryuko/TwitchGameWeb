@@ -68,6 +68,7 @@ typings/
 
 # dist
 public/react-bundle.js
+public/react-bundle.js.LICENSE.txt
 
 # db
 db.db
